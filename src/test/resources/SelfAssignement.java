@@ -3,8 +3,10 @@ class SelfAssignement {
   int[] b = {0};
   int h = 0;
   int[] g = 0;
-  SelfAssignementCheckB checkB = new SelfAssignementCheckB();
-  void method(int e,int h) {
+  SelfAssignementCheckB checkB_0 = new SelfAssignementCheckB();
+  SelfAssignementCheckB checkB_1 = new SelfAssignementCheckB();
+
+  void method(int e,int h,SelfAssignementCheckB checkB_1) {
     a = a; // Noncompliant [[sc=7;ec=8]] {{Remove or correct this useless self-assignment.}}
     this.a = this.a; // Noncompliant
     b[0] = b[0]; // Noncompliant
@@ -15,8 +17,10 @@ class SelfAssignement {
     int[] g = {0};
     g[fun()] = g[fun()]; // Noncompliant
     h = h; // Noncompliant
-    checkB.b = checkB.b; // Noncompliant
-    checkB.getSelf().foo = checkB.getSelf().foo; // Noncompliant
+    checkB_0.b = checkB_0.b; // Noncompliant
+    checkB_0.getSelf().foo = checkB_0.getSelf().foo; // Noncompliant
+    checkB_1.b = checkB_1.b; // Noncompliant
+    checkB_1.getSelf().foo = checkB_1.getSelf().foo; // Noncompliant
   }
 
 

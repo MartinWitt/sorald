@@ -15,6 +15,7 @@ import spoon.reflect.code.CtVariableAccess;
 import spoon.reflect.declaration.CtField;
 import spoon.reflect.declaration.CtVariable;
 import spoon.reflect.declaration.CtType;
+import spoon.reflect.code.CtTargetedExpression;
 
 @ProcessorAnnotation(key = 1656, description = "Variables should not be self-assigned")
 public class SelfAssignementProcessor extends SoraldAbstractProcessor<CtAssignment<?,?>> {
@@ -65,12 +66,27 @@ public class SelfAssignementProcessor extends SoraldAbstractProcessor<CtAssignme
 			leftExpression2Check = leftExpression;
 			rightExpression2Check = rightExpression;
 		}
+
 		boolean instanceOfFieldAccess = leftExpression2Check instanceof CtFieldAccess && rightExpression2Check instanceof CtFieldAccess; // True if no identical local variable present
 		boolean instanceOfVariableAccess = leftExpression2Check instanceof CtVariableAccess && rightExpression2Check instanceof CtVariableAccess;
-
-		if (instanceOfFieldAccess) {
+		if (instanceOfFieldAccess && !instanceOfVariableAccess) {
+			/* self field assignment - this.a = this.a */
 			element.delete();
 		} else if (!instanceOfFieldAccess && instanceOfVariableAccess) {
+			/* either a local variable self assignment or the left expression need 'this.' before itself */
+			CtField<?> field = type.getField(leftExpression2Check.toString());
+			if (field != null) {
+				fieldRead.setVariable(((CtVariable)field).getReference());
+				leftExpression2Check.replace(fieldRead);
+			} else {
+				element.delete();
+			}
+		} else if (instanceOfFieldAccess && instanceOfVariableAccess) {
+			/* Object invocation or field access case - Object.Get().a = Object.Get().a - either a local variable self assignment or need 'this.' */
+			while(leftExpression2Check instanceof CtTargetedExpression) {
+				// Get root targeted expression
+				leftExpression2Check = ((CtTargetedExpression)leftExpression2Check).getTarget();
+			}
 			CtField<?> field = type.getField(leftExpression2Check.toString());
 			if (field != null) {
 				fieldRead.setVariable(((CtVariable)field).getReference());
