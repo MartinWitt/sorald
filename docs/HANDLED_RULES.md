@@ -17,7 +17,7 @@ Sorald can currently repair violations of the following rules:
     * ["Iterator.next()" methods should throw "NoSuchElementException"](#iteratornext-methods-should-throw-nosuchelementexception-sonar-rule-2272) ([Sonar Rule 2272](https://rules.sonarsource.com/java/RSPEC-2272))
     * ["Thread.run()" should not be called directly](#threadrun-should-not-be-called-directly-sonar-rule-1217) ([Sonar Rule 1217](https://rules.sonarsource.com/java/RSPEC-1217))
     * ["toString()" and "clone()" methods should not return null](#tostring-and-clone-methods-should-not-return-null-sonar-rule-2225) ([Sonar Rule 2225](https://rules.sonarsource.com/java/RSPEC-2225))
-    * [Exceptions should not be created without being thrown](#exceptions-should-not-be-created-without-being-thrown-sonar-rule-3984) ([Sonar Rule 3984](https://rules.sonarsource.com/java/RSPEC-3984))
+    * [Exception should not be created without being thrown](#exception-should-not-be-created-without-being-thrown-sonar-rule-3984) ([Sonar Rule 3984](https://rules.sonarsource.com/java/RSPEC-3984))
     * [JEE applications should not "getClassLoader"](#jee-applications-should-not-getclassloader-sonar-rule-3032) ([Sonar Rule 3032](https://rules.sonarsource.com/java/RSPEC-3032))
     * [Math operands should be cast before assignment](#math-operands-should-be-cast-before-assignment-sonar-rule-2184) ([Sonar Rule 2184](https://rules.sonarsource.com/java/RSPEC-2184))
     * [Math should not be performed on floats](#math-should-not-be-performed-on-floats-sonar-rule-2164) ([Sonar Rule 2164](https://rules.sonarsource.com/java/RSPEC-2164))
@@ -30,8 +30,9 @@ Sorald can currently repair violations of the following rules:
 
     * ["Collections.EMPTY_LIST", "EMPTY_MAP", and "EMPTY_SET" should not be used](#collectionsempty_list-empty_map-and-empty_set-should-not-be-used-sonar-rule-1596) ([Sonar Rule 1596](https://rules.sonarsource.com/java/RSPEC-1596))
     * ["public static" fields should be constant](#public-static-fields-should-be-constant-sonar-rule-1444) ([Sonar Rule 1444](https://rules.sonarsource.com/java/RSPEC-1444))
-    * ["Serializable" classes should have a "serialVersionUID"](#serializable-classes-should-have-a-serialversionuid-sonar-rule-2057) ([Sonar Rule 2057](https://rules.sonarsource.com/java/RSPEC-2057))
+    * ["ThreadLocal.withInitial" should be preferred](#threadlocalwithinitial-should-be-preferred-sonar-rule-4065) ([Sonar Rule 4065](https://rules.sonarsource.com/java/RSPEC-4065))
     * [Collection.isEmpty() should be used to test for emptiness](#collectionisempty-should-be-used-to-test-for-emptiness-sonar-rule-1155) ([Sonar Rule 1155](https://rules.sonarsource.com/java/RSPEC-1155))
+    * [Every class implementing Serializable should declare a static final serialVersionUID.](#every-class-implementing-serializable-should-declare-a-static-final-serialversionuid-sonar-rule-2057) ([Sonar Rule 2057](https://rules.sonarsource.com/java/RSPEC-2057))
     * [Fields in a "Serializable" class should either be transient or serializable](#fields-in-a-serializable-class-should-either-be-transient-or-serializable-sonar-rule-1948) ([Sonar Rule 1948](https://rules.sonarsource.com/java/RSPEC-1948))
     * [Strings literals should be placed on the left side when checking for equality](#strings-literals-should-be-placed-on-the-left-side-when-checking-for-equality-sonar-rule-1132) ([Sonar Rule 1132](https://rules.sonarsource.com/java/RSPEC-1132))
     * [Unused "private" fields should be removed](#unused-private-fields-should-be-removed-sonar-rule-1068) ([Sonar Rule 1068](https://rules.sonarsource.com/java/RSPEC-1068))
@@ -192,6 +193,31 @@ Example:
 
 Sorald places the interrupt as late as possible in the catch block, but before any throws or returns.
 
+If there are multiple exceptions handled in a single catch block, a new catch block is added.
+
+Example:
+
+```diff
+public static void method() {
+    try {
+        if (1 < 2) {
+            throw new ExecutionException(new RuntimeException());
+        } else {
+            throw new InterruptedException();
+        }
+    }
+    // Noncompliant
+-   catch (InterruptedException | ExecutionException e) {
++   catch (ExecutionException e) {
+        throw new RuntimeException(e);
+    }
++   catch (InterruptedException e) {
++       Thread.currentThread().interrupt();
++       throw new RuntimeException(e);
++   }
+}
+```
+
 
 -----
 
@@ -258,7 +284,7 @@ public String toString() {
 
 -----
 
-#### Exceptions should not be created without being thrown ([Sonar Rule 3984](https://rules.sonarsource.com/java/RSPEC-3984))
+#### Exception should not be created without being thrown ([Sonar Rule 3984](https://rules.sonarsource.com/java/RSPEC-3984))
 
 Throw a `Throwable` that has been created but not thrown.
 
@@ -474,16 +500,18 @@ Example:
 
 -----
 
-#### "Serializable" classes should have a "serialVersionUID" ([Sonar Rule 2057](https://rules.sonarsource.com/java/RSPEC-2057))
+#### "ThreadLocal.withInitial" should be preferred ([Sonar Rule 4065](https://rules.sonarsource.com/java/RSPEC-4065))
 
-The repair consists of add a serialVersionUID to classes implementing Serializable
+Sorald fixes the violations of this rule by replacing an anonymous `ThreadLocal` class overriding `initalValue` with an invocation of `ThreadLocal.withInitial(Supplier)`.
 Example:
 ```diff
-public class NoUID implements Serializable {
-+  private static final long serialVersionUID = 1L;
-}
+-    ThreadLocal<String> myThreadLocal = new ThreadLocal<String>() {
+-       @Override
+-       protected String initialValue() {
+-           return "Hello";
+-       }
++ Threadlocal<String> myThreadLocal = ThreadLocal.withInitial(() -> "Hello");
 ```
-
 
 -----
 
@@ -500,6 +528,19 @@ Example:
 ...
 - if (myCollection.size() != 0) {  // Noncompliant
 + if (!myCollection.isEmpty()) {
+```
+
+
+-----
+
+#### Every class implementing Serializable should declare a static final serialVersionUID. ([Sonar Rule 2057](https://rules.sonarsource.com/java/RSPEC-2057))
+
+The repair consists of add a serialVersionUID to classes implementing Serializable
+Example:
+```diff
+public class NoUID implements Serializable {
++  private static final long serialVersionUID = 1L;
+}
 ```
 
 
