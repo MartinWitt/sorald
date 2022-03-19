@@ -11,7 +11,6 @@ import sorald.rule.RuleProvider;
 /** Class that knows about all Sonar rules. Should ONLY be used by {@link sorald.rule.Rules}. */
 @MetaInfServices(RuleProvider.class)
 public class SonarRules implements RuleProvider {
-    private SonarRules() {}
 
     /**
      * Get all SonarJava rules.
