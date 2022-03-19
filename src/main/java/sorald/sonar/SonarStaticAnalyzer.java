@@ -14,6 +14,7 @@ import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneAnalysisCo
 import sorald.rule.Rule;
 import sorald.rule.RuleViolation;
 import sorald.rule.StaticAnalyzer;
+
 @MetaInfServices(StaticAnalyzer.class)
 public class SonarStaticAnalyzer implements StaticAnalyzer {
     private final SonarLintEngine sonarLint;
@@ -25,11 +26,11 @@ public class SonarStaticAnalyzer implements StaticAnalyzer {
     @Override
     public Collection<RuleViolation> findViolations(
             File projectRoot, List<File> files, List<Rule> rules, List<String> classpath) {
-        return analyze(projectRoot,files, rules, classpath);
+        return analyze(projectRoot, files, rules, classpath);
     }
 
-    private Collection<RuleViolation> analyze(File projectRoot,
-            List<File> files, List<Rule> rules, List<String> classpath) {
+    private Collection<RuleViolation> analyze(
+            File projectRoot, List<File> files, List<Rule> rules, List<String> classpath) {
 
         List<JavaInputFile> inputFiles =
                 files.stream()

@@ -66,7 +66,7 @@ public class ProjectScanner {
         ServiceLoader<StaticAnalyzer> loader = ServiceLoader.load(StaticAnalyzer.class);
         Set<RuleViolation> violations = new HashSet<>();
         for (StaticAnalyzer analyzer : loader) {
-            violations.addAll(analyzer.findViolations(baseDir,filesToScan, rules, classpath));
+            violations.addAll(analyzer.findViolations(baseDir, filesToScan, rules, classpath));
         }
         // TODO generalize to not directly use the SonarStaticAnalyzer
         // var violations =
