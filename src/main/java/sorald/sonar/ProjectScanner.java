@@ -5,11 +5,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ServiceLoader;
 import java.util.Set;
 import sorald.Constants;
 import sorald.FileUtils;
 import sorald.rule.Rule;
 import sorald.rule.RuleViolation;
+import sorald.rule.StaticAnalyzer;
 
 /** Helper class that uses Sonar to scan projects for rule violations. */
 public class ProjectScanner {
@@ -61,10 +63,14 @@ public class ProjectScanner {
                 e.printStackTrace();
             }
         }
-
+        ServiceLoader<StaticAnalyzer> loader = ServiceLoader.load(StaticAnalyzer.class);
+        Set<RuleViolation> violations = new HashSet<>();
+        for (StaticAnalyzer analyzer : loader) {
+            violations.addAll(analyzer.findViolations(baseDir,filesToScan, rules, classpath));
+        }
         // TODO generalize to not directly use the SonarStaticAnalyzer
-        var violations =
-                new SonarStaticAnalyzer(baseDir).findViolations(filesToScan, rules, classpath);
+        // var violations =
+        //         new SonarStaticAnalyzer(baseDir).findViolations(filesToScan, rules, classpath);
         return new HashSet<>(violations);
     }
 }

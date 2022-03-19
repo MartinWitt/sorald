@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+import org.kohsuke.MetaInfServices;
 import org.sonarsource.sonarlint.core.client.api.common.RuleKey;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.Issue;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.IssueListener;
@@ -13,23 +14,21 @@ import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneAnalysisCo
 import sorald.rule.Rule;
 import sorald.rule.RuleViolation;
 import sorald.rule.StaticAnalyzer;
-
+@MetaInfServices(StaticAnalyzer.class)
 public class SonarStaticAnalyzer implements StaticAnalyzer {
-    private final File projectRoot;
     private final SonarLintEngine sonarLint;
 
-    public SonarStaticAnalyzer(File projectRoot) {
-        this.projectRoot = projectRoot;
+    public SonarStaticAnalyzer() {
         this.sonarLint = SonarLintEngine.getInstance();
     }
 
     @Override
     public Collection<RuleViolation> findViolations(
-            List<File> files, List<Rule> rules, List<String> classpath) {
-        return analyze(files, rules, classpath);
+            File projectRoot, List<File> files, List<Rule> rules, List<String> classpath) {
+        return analyze(projectRoot,files, rules, classpath);
     }
 
-    private Collection<RuleViolation> analyze(
+    private Collection<RuleViolation> analyze(File projectRoot,
             List<File> files, List<Rule> rules, List<String> classpath) {
 
         List<JavaInputFile> inputFiles =
