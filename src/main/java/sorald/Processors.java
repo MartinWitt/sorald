@@ -2,6 +2,7 @@ package sorald;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.ServiceLoader;
 import java.util.ServiceLoader.Provider;
 import java.util.stream.Collectors;
@@ -61,8 +62,9 @@ public class Processors {
         return loader.stream()
                 .map(Provider::get)
                 .map(v -> v.getProcessor(key))
+                .filter(Objects::nonNull)
                 .findFirst()
-                .orElseThrow();
+                .orElse(null);
     }
 
     /** @return A list of all processors sorted by name. */
