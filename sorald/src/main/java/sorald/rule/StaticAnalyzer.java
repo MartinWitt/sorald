@@ -16,5 +16,5 @@ public interface StaticAnalyzer {
      * @return All violations of the rules found in the files.
      */
     Collection<RuleViolation> findViolations(
-            List<File> files, List<Rule> rule, List<String> classpath);
+            File projectRoot, List<File> files, List<Rule> rule, List<String> classpath);
 }

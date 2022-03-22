@@ -1,9 +1,10 @@
 package sorald.rule;
 
 import java.util.Collection;
+import java.util.ServiceLoader;
+import java.util.ServiceLoader.Provider;
 import java.util.Set;
 import java.util.stream.Collectors;
-import sorald.sonar.SonarRules;
 
 /** Utility class for finding available rules. */
 public class Rules {
@@ -16,7 +17,12 @@ public class Rules {
      * @return All rules.
      */
     public static Collection<Rule> getAllRules() {
-        return SonarRules.getAllRules();
+        ServiceLoader<RuleProvider> providers = ServiceLoader.load(RuleProvider.class);
+        return providers.stream()
+                .map(Provider::get)
+                .map(RuleProvider::getAllRules)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet());
     }
 
     /**
