@@ -315,7 +315,9 @@
             </plugin>
         </plugins>
     </build>
-
+    <modules>
+        <module>sorald</module>
+    </modules>
     <profiles>
         <profile>
             <id>spoonSnapshot</id>
