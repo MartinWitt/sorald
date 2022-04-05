@@ -270,6 +270,7 @@
         </repository>
     </distributionManagement>
     <modules>
+        <module>sorald-api</module>
         <module>sorald</module>
     </modules>
 </project>

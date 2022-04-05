@@ -10,10 +10,10 @@
   </parent>
 
     <groupId>se.kth.castor</groupId>
-    <artifactId>sorald</artifactId>
-    <version>0.3.1-SNAPSHOT</version>
-
-    <name>Sorald</name>
+    <artifactId>sorald-api</artifactId>
+    <version>0.0.1</version>
+    <packaging>jar</packaging>
+    <name>Sorald-API</name>
     <description>An automatic repair system for static code analysis warnings from Sonar Java.</description>
     <url>https://github.com/SpoonLabs/sorald</url>
 
@@ -51,30 +51,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>se.kth.castor</groupId>
-            <artifactId>sorald-api</artifactId>
-            <version>0.0.1</version>
-        </dependency>
-        <dependency>
             <groupId>org.sonarsource.sonarlint.core</groupId>
             <artifactId>sonarlint-core</artifactId>
-            <version>8.4.0.45663</version>
-        </dependency>
-        <dependency>
-            <groupId>info.picocli</groupId>
-            <artifactId>picocli</artifactId>
-            <version>${picocli.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>info.picocli</groupId>
-            <artifactId>picocli-codegen</artifactId>
-            <version>${picocli.version}</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.json/json -->
-        <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-            <version>20220320</version>
+            <version>8.2.0.43778</version>
         </dependency>
     </dependencies>
     <properties>
@@ -88,28 +67,6 @@
     </properties>
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>3.0.0</version>
-                <executions>
-                    <execution>
-                        <id>generateManPages</id>
-                        <phase>process-classes</phase>
-                        <goals>
-                            <goal>java</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <mainClass>picocli.codegen.docgen.manpage.ManPageGenerator</mainClass>
-                    <arguments>
-                        <argument>--outdir=${project.basedir}/docs/usage</argument>
-                        <argument>sorald.cli.RepairCommand</argument>
-                        <argument>sorald.cli.MineCommand</argument>
-                    </arguments>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
